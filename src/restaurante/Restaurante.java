@@ -1,20 +1,30 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package restaurante;
 
+import DAO.UsuarioDAO;
+import Model.Usuario;
+import Controller.CtrlLogin;
+import View.ViewLogIn;
+
 /**
- *
  * @author Melqui Erazo
  */
 public class Restaurante {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        // 1. Instanciamos la Vista del Login
+        ViewLogIn frmLog = new ViewLogIn();
+        
+        // 2. Instanciamos el Modelo DAO (que tiene la conexión a la BD)
+        UsuarioDAO modLog = new UsuarioDAO();
+        
+        // 3. Instanciamos el Modelo de datos vacío para el usuario
+        Usuario modUsu = new Usuario();
+        
+        // 4. El controlador une todo y maneja los eventos
+        CtrlLogin ctrl = new CtrlLogin(modUsu, modLog, frmLog);
+        
+        // 5. Inicializamos y mostramos la pantalla
+        ctrl.iniciar();
+        frmLog.setVisible(true);
     }
-    
 }
