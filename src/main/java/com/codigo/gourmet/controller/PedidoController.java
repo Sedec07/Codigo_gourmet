@@ -3,6 +3,7 @@ package com.codigo.gourmet.controller;
 import com.codigo.gourmet.model.ItemPedido;
 import com.codigo.gourmet.model.Pedido;
 import com.codigo.gourmet.model.Producto;
+import com.codigo.gourmet.service.GuardarPedidoResultado;
 import com.codigo.gourmet.service.TiendaMemoria;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -60,7 +61,11 @@ public class PedidoController {
         if (yaEnPedido + cantidad > producto.getStock()) {
             return "redirect:/pedido?error=stock";
         }
+        System.out.println("[PedidoController] agregar tienda=" + System.identityHashCode(tienda)
+                + " borrador=" + System.identityHashCode(borrador) + " idPedido=" + borrador.getIdPedido()
+                + " productoCanon=" + System.identityHashCode(producto) + " nombre=" + producto.getNombre());
         borrador.agregarItem(new ItemPedido(producto, cantidad));
+        System.out.println("[PedidoController] agregar despues items=" + borrador.getItems().size());
         return "redirect:/pedido";
     }
 
@@ -70,11 +75,24 @@ public class PedidoController {
         if (borrador == null || borrador.getItems().isEmpty()) {
             return "redirect:/pedido?error=vacio";
         }
-        if (!tienda.guardarPedido(borrador)) {
+        GuardarPedidoResultado resultado = tienda.guardarPedido(borrador);
+        System.out.println("[PedidoController] guardar resultado=" + resultado
+                + " tienda=" + System.identityHashCode(tienda)
+                + " borrador=" + System.identityHashCode(borrador)
+                + " idPedido=" + borrador.getIdPedido()
+                + " items=" + borrador.getItems().size());
+        if (resultado == GuardarPedidoResultado.STOCK_PRODUCTO_INSUFICIENTE) {
+            return "redirect:/pedido?error=stockguardar";
+        }
+        if (resultado == GuardarPedidoResultado.INGREDIENTES_INSUFICIENTES) {
+            return "redirect:/pedido?error=ingredientesguardar";
+        }
+        if (resultado != GuardarPedidoResultado.OK) {
             return "redirect:/pedido?error=stockguardar";
         }
         int id = borrador.getIdPedido();
         session.removeAttribute(SESSION_PEDIDO_BORRADOR);
+        System.out.println("[PedidoController] guardar OK redirect resumen id=" + id + " sesion borrador eliminado");
         return "redirect:/pedido/resumen/" + id;
     }
 

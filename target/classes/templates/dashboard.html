@@ -26,6 +26,8 @@
         <ul class="nav-tiles">
             <li><a th:href="@{/pedido}">Nuevo pedido</a></li>
             <li><a th:href="@{/ventas/historial}">Historial de ventas</a></li>
+            <li><a th:href="@{/ingredientes}">Ingredientes</a></li>
+            <li><a th:href="@{/recetas}">Recetas por producto</a></li>
             <li sec:authorize="hasRole('ADMINISTRADOR')" class="muted">Inventario <span th:text="'(próximamente)'"></span></li>
         </ul>
 

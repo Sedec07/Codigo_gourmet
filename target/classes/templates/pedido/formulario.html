@@ -22,6 +22,7 @@
             <span th:if="${param.error[0] == 'noexiste'}">Pedido no encontrado.</span>
             <span th:if="${param.error[0] == 'stock'}">No hay stock suficiente para esa cantidad (revisa la columna «Disponible»).</span>
             <span th:if="${param.error[0] == 'stockguardar'}">El stock cambió y ya no alcanza para este pedido. Ajusta las cantidades.</span>
+            <span th:if="${param.error[0] == 'ingredientesguardar'}">No hay suficientes ingredientes en inventario para completar el pedido según las recetas. Revisa recetas o cantidades.</span>
         </p>
     </div>
 
@@ -56,6 +57,7 @@
     <div class="card">
         <h2>Agregar al pedido</h2>
         <form th:action="@{/pedido/agregar}" method="post" class="form-stack">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div class="field">
                 <label>Índice del producto (columna #)</label>
                 <input type="number" name="indiceProducto" min="0" th:max="${#lists.size(productos) - 1}" value="0" required>
@@ -95,6 +97,7 @@
         <p class="total-banner"><strong>Total:</strong> $<span th:text="${#numbers.formatDecimal(pedido.total, 1, 0)}">0</span></p>
 
         <form th:action="@{/pedido/guardar}" method="post" th:if="${not #lists.isEmpty(pedido.items)}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <button type="submit" class="btn btn--primary">Guardar pedido</button>
         </form>
     </div>
