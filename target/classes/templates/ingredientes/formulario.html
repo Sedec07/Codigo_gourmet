@@ -7,43 +7,48 @@
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
+<div class="app-layout">
+    <div th:insert="~{fragments/layout :: topbar}"></div>
+    <div th:insert="~{fragments/layout :: tabs(activeTab='ingredientes')}"></div>
+    <main class="main-content">
 
-<div class="shell">
-    <header class="page-header">
-        <h1>Registrar ingrediente</h1>
-        <p class="tagline">Alta en memoria</p>
-    </header>
+        <header class="page-header">
+            <h1>Registrar ingrediente</h1>
+            <p class="tagline">Alta en memoria</p>
+        </header>
 
-    <div class="card" th:if="${param.error != null}">
-        <p class="alert alert--error" style="margin:0;">Revisa nombre y cantidad (no negativos).</p>
-    </div>
+        <div th:if="${param.error != null}">
+            <div class="card" style="padding:12px 16px;">
+                <p class="alert alert--error" style="margin:0;">Revisa nombre y cantidad (no negativos).</p>
+            </div>
+        </div>
 
-    <div class="card">
-        <form th:action="@{/ingredientes/nuevo}" method="post" class="form-stack">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            <div class="field">
-                <label for="nombre">Nombre</label>
-                <input id="nombre" name="nombre" type="text" required maxlength="120">
-            </div>
-            <div class="field">
-                <label for="cantidad">Cantidad disponible inicial</label>
-                <input id="cantidad" name="cantidad" type="number" step="any" min="0" value="0" required>
-            </div>
-            <div class="field">
-                <label for="unidad">Unidad</label>
-                <select id="unidad" name="unidad" required>
-                    <option th:each="u : ${T(com.codigo.gourmet.model.UnidadMedida).values()}"
-                            th:value="${u.name()}" th:text="${u}">GRAMOS</option>
-                </select>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn--primary">Guardar</button>
-            </div>
-        </form>
-    </div>
+        <div class="card">
+            <form th:action="@{/ingredientes/nuevo}" method="post" class="form-stack">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="field">
+                    <label for="nombre">Nombre</label>
+                    <input id="nombre" name="nombre" type="text" required maxlength="120">
+                </div>
+                <div class="field">
+                    <label for="cantidad">Cantidad disponible inicial</label>
+                    <input id="cantidad" name="cantidad" type="number" step="any" min="0" value="0" required>
+                </div>
+                <div class="field">
+                    <label for="unidad">Unidad</label>
+                    <select id="unidad" name="unidad" required>
+                        <option th:each="u : ${T(com.codigo.gourmet.model.UnidadMedida).values()}"
+                                th:value="${u.name()}" th:text="${u}">GRAMOS</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Guardar</button>
+                </div>
+            </form>
+        </div>
 
-    <p class="link-back"><a th:href="@{/ingredientes}">← Volver al listado</a></p>
+        <p class="link-back"><a th:href="@{/ingredientes}">← Volver al listado</a></p>
+    </main>
 </div>
-
 </body>
 </html>

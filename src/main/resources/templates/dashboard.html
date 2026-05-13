@@ -8,36 +8,32 @@
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
+<div class="app-layout">
+    <div th:insert="~{fragments/layout :: topbar}"></div>
+    <div th:insert="~{fragments/layout :: tabs(activeTab='dashboard')}"></div>
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Dashboard</h1>
+            <p class="tagline">Panel principal de Código Gourmet</p>
+        </header>
 
-<div class="shell">
-    <header class="page-header">
-        <h1>Código Gourmet</h1>
-        <p class="tagline">Panel principal</p>
-    </header>
+        <div class="card">
+            <div class="user-strip" style="display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 16px; margin-bottom:16px; font-size:14px;">
+                <span>Hola, <strong sec:authentication="name">usuario</strong>.</span>
+                <span sec:authorize="hasRole('CAJERO')" class="status-badge status-badge--cerrado">Cajero</span>
+                <span sec:authorize="hasRole('ADMINISTRADOR')" class="status-badge status-badge--pagando">Administrador</span>
+            </div>
 
-    <div class="card">
-        <div class="user-strip">
-            <span>Hola, <span class="name" sec:authentication="name">usuario</span>.</span>
-            <span sec:authorize="hasRole('CAJERO')" class="badge">Cajero</span>
-            <span sec:authorize="hasRole('ADMINISTRADOR')" class="badge">Administrador</span>
+            <h2>Accesos rápidos</h2>
+            <ul class="nav-tiles">
+                <li><a th:href="@{/pedido}">Nuevo pedido <span class="tile-desc">Crear y gestionar pedidos</span></a></li>
+                <li><a th:href="@{/ventas/historial}">Historial de ventas <span class="tile-desc">Pedidos guardados</span></a></li>
+                <li><a th:href="@{/ingredientes}">Ingredientes <span class="tile-desc">Inventario en memoria</span></a></li>
+                <li><a th:href="@{/recetas}">Recetas por producto <span class="tile-desc">Consumo de ingredientes</span></a></li>
+                <li sec:authorize="hasRole('ADMINISTRADOR')" class="muted">Inventario <span class="tile-desc">(próximamente)</span></li>
+            </ul>
         </div>
-
-        <h2>Accesos rápidos</h2>
-        <ul class="nav-tiles">
-            <li><a th:href="@{/pedido}">Nuevo pedido</a></li>
-            <li><a th:href="@{/ventas/historial}">Historial de ventas</a></li>
-            <li><a th:href="@{/ingredientes}">Ingredientes</a></li>
-            <li><a th:href="@{/recetas}">Recetas por producto</a></li>
-            <li sec:authorize="hasRole('ADMINISTRADOR')" class="muted">Inventario <span th:text="'(próximamente)'"></span></li>
-        </ul>
-
-        <div class="footer-actions">
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn--danger">Cerrar sesión</button>
-            </form>
-        </div>
-    </div>
+    </main>
 </div>
-
 </body>
 </html>

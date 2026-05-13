@@ -7,58 +7,61 @@
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
+<div class="app-layout">
+    <div th:insert="~{fragments/layout :: topbar}"></div>
+    <div th:insert="~{fragments/layout :: tabs(activeTab='ventas')}"></div>
+    <main class="main-content">
 
-<div class="shell">
-    <header class="page-header">
-        <h1>Historial de ventas</h1>
-        <p class="tagline">Pedidos guardados en memoria</p>
-    </header>
+        <header class="page-header">
+            <h1>Historial de ventas</h1>
+            <p class="tagline">Pedidos guardados en memoria</p>
+        </header>
 
-    <p class="summary-kpi">
-        Total vendido hoy (pedidos guardados):
-        <strong>$<span th:text="${#numbers.formatDecimal(totalVendidoHoy, 1, 0)}">0</span></strong>
-    </p>
+        <p class="summary-kpi">
+            <span>Total vendido hoy</span>
+            <strong>$<span th:text="${#numbers.formatDecimal(totalVendidoHoy, 1, 0)}">0</span></strong>
+        </p>
 
-    <div class="card" th:if="${#lists.isEmpty(pedidos)}">
-        <p class="meta-line" style="margin:0;">Aún no hay pedidos guardados.</p>
-    </div>
-
-    <div class="card" th:if="${not #lists.isEmpty(pedidos)}">
-        <h2>Listado</h2>
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th>Pedido</th>
-                    <th>Fecha y hora</th>
-                    <th>Productos</th>
-                    <th class="num">Total</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="pedido : ${pedidos}">
-                    <td th:text="${pedido.idPedido}">0</td>
-                    <td>
-                        <span th:if="${pedido.fechaRegistro != null}"
-                              th:text="${#temporals.format(pedido.fechaRegistro, 'dd/MM/yyyy HH:mm')}">—</span>
-                        <span th:if="${pedido.fechaRegistro == null}">—</span>
-                    </td>
-                    <td>
-                        <ul th:if="${not #lists.isEmpty(pedido.items)}">
-                            <li th:each="linea : ${pedido.items}"
-                                th:text="|${linea.producto.nombre} × ${linea.cantidad}|">—</li>
-                        </ul>
-                        <span th:if="${#lists.isEmpty(pedido.items)}">(sin líneas)</span>
-                    </td>
-                    <td class="num" th:text="${#numbers.formatDecimal(pedido.total, 1, 0)}">0</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="card" th:if="${#lists.isEmpty(pedidos)}">
+            <p class="meta-line" style="margin:0;">Aún no hay pedidos guardados.</p>
         </div>
-    </div>
 
-    <p class="link-back"><a th:href="@{/dashboard}">← Volver al dashboard</a></p>
+        <div class="card" th:if="${not #lists.isEmpty(pedidos)}">
+            <h2>Listado</h2>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Fecha y hora</th>
+                        <th>Productos</th>
+                        <th class="num">Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="pedido : ${pedidos}">
+                        <td th:text="${pedido.idPedido}">0</td>
+                        <td>
+                            <span th:if="${pedido.fechaRegistro != null}"
+                                  th:text="${#temporals.format(pedido.fechaRegistro, 'dd/MM/yyyy HH:mm')}">—</span>
+                            <span th:if="${pedido.fechaRegistro == null}">—</span>
+                        </td>
+                        <td>
+                            <ul th:if="${not #lists.isEmpty(pedido.items)}">
+                                <li th:each="linea : ${pedido.items}"
+                                    th:text="|${linea.producto.nombre} × ${linea.cantidad}|">—</li>
+                            </ul>
+                            <span th:if="${#lists.isEmpty(pedido.items)}">(sin líneas)</span>
+                        </td>
+                        <td class="num" th:text="${#numbers.formatDecimal(pedido.total, 1, 0)}">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="link-back"><a th:href="@{/dashboard}">← Volver al dashboard</a></p>
+    </main>
 </div>
-
 </body>
 </html>
