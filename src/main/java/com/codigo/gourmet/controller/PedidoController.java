@@ -1,11 +1,7 @@
 package com.codigo.gourmet.controller;
 
-import com.codigo.gourmet.model.ItemPedido;
 import com.codigo.gourmet.model.Pedido;
-import com.codigo.gourmet.model.Producto;
-import com.codigo.gourmet.service.GuardarPedidoResultado;
 import com.codigo.gourmet.service.TiendaMemoria;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Controller
 @RequestMapping("/pedido")
 public class PedidoController {
-
-    private static final String SESSION_PEDIDO_BORRADOR = "pedidoBorrador";
 
     private final TiendaMemoria tienda;
 
@@ -30,74 +21,52 @@ public class PedidoController {
     }
 
     @GetMapping
-    public String formulario(HttpSession session, Model model) {
-        if (session.getAttribute(SESSION_PEDIDO_BORRADOR) == null) {
-            session.setAttribute(SESSION_PEDIDO_BORRADOR, new Pedido(tienda.siguienteIdPedido()));
-        }
-        Pedido borrador = (Pedido) session.getAttribute(SESSION_PEDIDO_BORRADOR);
-        List<Integer> disponibles = new ArrayList<>();
-        for (int i = 0; i < tienda.tamanoCatalogo(); i++) {
-            Producto pr = tienda.productoPorIndice(i);
-            disponibles.add(tienda.disponibleConsiderandoBorrador(borrador, pr));
-        }
+    public String formulario(
+            @RequestParam(value = "selected", required = false) Integer selectedId,
+            Model model) {
+        model.addAttribute("pedidosPendientes", tienda.listarPedidosPorEstado("PENDIENTE"));
+        model.addAttribute("pedidosEnCurso", tienda.listarPedidosPorEstado("EN_CURSO"));
+        model.addAttribute("pedidosCerrados", tienda.listarPedidosPorEstado("CERRADO"));
         model.addAttribute("productos", tienda.getCatalogo());
-        model.addAttribute("disponibles", disponibles);
-        model.addAttribute("pedido", borrador);
+
+        Pedido selected = null;
+        if (selectedId != null) {
+            selected = tienda.buscarPedidoPorId(selectedId);
+        }
+        model.addAttribute("selectedPedido", selected);
         return "pedido/formulario";
     }
 
+    @PostMapping("/nuevo")
+    public String nuevoPedido(@RequestParam("nombreCliente") String nombreCliente) {
+        if (nombreCliente == null || nombreCliente.isBlank()) {
+            return "redirect:/pedido?error=nombre";
+        }
+        Pedido pedido = tienda.crearPedido(nombreCliente.trim());
+        return "redirect:/pedido?selected=" + pedido.getIdPedido();
+    }
+
     @PostMapping("/agregar")
-    public String agregar(
+    public String agregarProducto(
+            @RequestParam("idPedido") int idPedido,
             @RequestParam("indiceProducto") int indiceProducto,
-            @RequestParam("cantidad") int cantidad,
-            HttpSession session) {
+            @RequestParam("cantidad") int cantidad) {
         if (cantidad < 1) {
-            return "redirect:/pedido?error=cantidad";
+            return "redirect:/pedido?selected=" + idPedido + "&error=cantidad";
         }
-        if (indiceProducto < 0 || indiceProducto >= tienda.tamanoCatalogo()) {
-            return "redirect:/pedido?error=producto";
+        boolean ok = tienda.agregarItemAPedido(idPedido, indiceProducto, cantidad);
+        if (!ok) {
+            return "redirect:/pedido?selected=" + idPedido + "&error=producto";
         }
-        Pedido borrador = (Pedido) session.getAttribute(SESSION_PEDIDO_BORRADOR);
-        if (borrador == null) {
-            return "redirect:/pedido";
+        return "redirect:/pedido?selected=" + idPedido;
+    }
+
+    @PostMapping("/cerrar/{id}")
+    public String cerrarPedido(@PathVariable("id") int idPedido) {
+        boolean ok = tienda.cerrarPedido(idPedido);
+        if (!ok) {
+            return "redirect:/pedido?selected=" + idPedido + "&error=cerrar";
         }
-        Producto producto = tienda.productoPorIndice(indiceProducto);
-        int yaEnPedido = tienda.cantidadDelProductoEnPedido(borrador, producto);
-        if (yaEnPedido + cantidad > producto.getStock()) {
-            return "redirect:/pedido?error=stock";
-        }
-        borrador.agregarItem(new ItemPedido(producto, cantidad));
         return "redirect:/pedido";
-    }
-
-    @PostMapping("/guardar")
-    public String guardar(HttpSession session) {
-        Pedido borrador = (Pedido) session.getAttribute(SESSION_PEDIDO_BORRADOR);
-        if (borrador == null || borrador.getItems().isEmpty()) {
-            return "redirect:/pedido?error=vacio";
-        }
-        GuardarPedidoResultado resultado = tienda.guardarPedido(borrador);
-        if (resultado == GuardarPedidoResultado.STOCK_PRODUCTO_INSUFICIENTE) {
-            return "redirect:/pedido?error=stockguardar";
-        }
-        if (resultado == GuardarPedidoResultado.INGREDIENTES_INSUFICIENTES) {
-            return "redirect:/pedido?error=ingredientesguardar";
-        }
-        if (resultado != GuardarPedidoResultado.OK) {
-            return "redirect:/pedido?error=stockguardar";
-        }
-        int id = borrador.getIdPedido();
-        session.removeAttribute(SESSION_PEDIDO_BORRADOR);
-        return "redirect:/pedido/resumen/" + id;
-    }
-
-    @GetMapping("/resumen/{id}")
-    public String resumen(@PathVariable("id") int id, Model model) {
-        Pedido pedido = tienda.buscarPedidoPorId(id);
-        if (pedido == null) {
-            return "redirect:/pedido?error=noexiste";
-        }
-        model.addAttribute("pedido", pedido);
-        return "pedido/resumen";
     }
 }
