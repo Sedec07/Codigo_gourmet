@@ -12,7 +12,6 @@ import com.codigo.gourmet.repository.ProductoRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,14 +40,33 @@ public class PedidoController {
         this.lineaRecetaRepository = lineaRecetaRepository;
     }
 
-    @GetMapping
-    public String formulario(
+    @GetMapping("")
+    public String verPedidos(
             @RequestParam(value = "selected", required = false) Integer selectedId,
             Model model) {
+        
+        // Bloque de seguridad: Inicializar productos de prueba si MariaDB está vacía
+        List<Producto> listaProductos = productoRepository.findAll();
+        if (listaProductos.isEmpty()) {
+            Producto p1 = new Producto();
+            p1.setNombre("Hamburguesa Gourmet");
+            p1.setPrecio(25000);
+            p1.setStock(50); // Añadimos stock para pasar las validaciones
+            productoRepository.save(p1);
+
+            Producto p2 = new Producto();
+            p2.setNombre("Papas Fritas");
+            p2.setPrecio(10000);
+            p2.setStock(100);
+            productoRepository.save(p2);
+            
+            listaProductos = productoRepository.findAll();
+        }
+
         model.addAttribute("pedidosPendientes", pedidoRepository.findByEstadoOrderByFechaRegistroDesc("PENDIENTE"));
         model.addAttribute("pedidosEnCurso", pedidoRepository.findByEstadoOrderByFechaRegistroDesc("EN_CURSO"));
         model.addAttribute("pedidosCerrados", pedidoRepository.findByEstadoOrderByFechaRegistroDesc("CERRADO"));
-        model.addAttribute("productos", productoRepository.findAll());
+        model.addAttribute("productos", listaProductos);
 
         Pedido selected;
         boolean orderSelected = false;
@@ -56,6 +74,11 @@ public class PedidoController {
             selected = pedidoRepository.findById(selectedId).orElse(null);
             if (selected != null) {
                 orderSelected = true;
+                if (selected.getEstado() == null || selected.getEstado().isBlank()) {
+                    selected.setEstado("PENDIENTE");
+                } else {
+                    selected.setEstado(selected.getEstado().toUpperCase());
+                }
             } else {
                 selected = new Pedido();
             }
@@ -73,6 +96,8 @@ public class PedidoController {
             return "redirect:/pedido?error=nombre";
         }
         Pedido pedido = new Pedido(nombreCliente.trim());
+        pedido.setEstado("PENDIENTE");
+        pedido.setFechaRegistro(LocalDateTime.now());
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
         return "redirect:/pedido?selected=" + pedidoGuardado.getIdPedido();
     }
@@ -80,7 +105,7 @@ public class PedidoController {
     @PostMapping("/agregar")
     public String agregarProducto(
             @RequestParam("idPedido") int idPedido,
-            @RequestParam("indiceProducto") int indiceProducto,
+            @RequestParam("idProducto") int idProducto, // Corregido para usar ID real en vez de índice
             @RequestParam("cantidad") int cantidad) {
         if (cantidad < 1) {
             return "redirect:/pedido?error=cantidad";
@@ -89,27 +114,35 @@ public class PedidoController {
         if (pedido == null || !"PENDIENTE".equals(pedido.getEstado())) {
             return "redirect:/pedido?error=producto";
         }
-        List<Producto> productos = productoRepository.findAll();
-        if (indiceProducto < 0 || indiceProducto >= productos.size()) {
+        
+        Producto producto = productoRepository.findById(idProducto).orElse(null);
+        if (producto == null) {
             return "redirect:/pedido?error=producto";
         }
-        Producto producto = productos.get(indiceProducto);
+        
         int yaEnPedido = 0;
-        for (ItemPedido item : pedido.getItems()) {
-            if (item.getProducto().getId().equals(producto.getId())) {
-                yaEnPedido += item.getCantidad();
+        if (pedido.getItems() != null) {
+            for (ItemPedido item : pedido.getItems()) {
+                if (item.getProducto().getId().equals(producto.getId())) {
+                    yaEnPedido += item.getCantidad();
+                }
             }
         }
+        
         if (yaEnPedido + cantidad > producto.getStock()) {
             return "redirect:/pedido?error=producto";
         }
-        pedido.agregarItem(new ItemPedido(producto, cantidad));
+        
+        ItemPedido nuevoItem = new ItemPedido(producto, cantidad);
+        nuevoItem.setPedido(pedido); // Vinculamos la relación bidireccional de JPA
+        pedido.agregarItem(nuevoItem);
+        
         pedidoRepository.save(pedido);
         return "redirect:/pedido?selected=" + idPedido;
     }
 
-    @PostMapping("/cerrar/{id}")
-    public String cerrarPedido(@PathVariable("id") int idPedido) {
+    @PostMapping("/cerrar")
+    public String cerrarPedido(@RequestParam("idPedido") int idPedido) {
         Pedido pedido = pedidoRepository.findById(idPedido).orElse(null);
         if (pedido == null || !"PENDIENTE".equals(pedido.getEstado())) {
             return "redirect:/pedido?error=cerrar";

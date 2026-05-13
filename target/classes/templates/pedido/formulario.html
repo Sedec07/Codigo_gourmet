@@ -14,7 +14,6 @@
 
         <!-- LEFT COLUMN: Order history by status -->
         <div>
-
             <!-- Error alerts -->
             <div th:if="${param.error != null}" class="card" style="padding:12px 16px; margin-bottom:16px;">
                 <p class="alert alert--error" style="margin:0;">
@@ -120,12 +119,10 @@
                 </div>
                 <p th:if="${#lists.isEmpty(pedidosCerrados)}" class="orders-section__empty">No hay pedidos cerrados.</p>
             </div>
-
         </div>
 
         <!-- RIGHT COLUMN: Action panel -->
         <div>
-
             <!-- Panel: Create new order (no selection) -->
             <div class="panel-side" th:if="${!orderSelected}">
                 <div class="panel-side__header">Nuevo Pedido</div>
@@ -145,86 +142,85 @@
             </div>
 
             <!-- Panel: Order detail (selected) -->
-            <div class="panel-side" th:if="${orderSelected}">
-                <div class="panel-side__header">
+                        <!-- Panel: Order detail (selected) -->
+            <!-- Forzamos la apertura si el ID existe, ignorando la bandera orderSelected -->
+            <div class="panel-side" th:if="${selectedPedido != null and selectedPedido.idPedido != null}">
+                <div class="panel-side__header" style="background-color: #F15A24; color: white; padding: 12px 16px; font-weight: bold;">
                     Pedido #<span th:text="${selectedPedido.idPedido}">0</span>
                     — <span th:text="${selectedPedido.nombreCliente}">—</span>
                 </div>
-                <div class="panel-side__body">
-
+                <div class="panel-side__body" style="padding:16px; display:block !important; visibility:visible !important; min-height:300px; background-color:white; color:black;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
-                        <span class="panel-side__status"
-                              th:classappend="${selectedPedido.estado == 'PENDIENTE' ? 'panel-side__status--pendiente' : (selectedPedido.estado == 'EN_CURSO' ? 'panel-side__status--curso' : 'panel-side__status--cerrado')}"
-                              th:text="${selectedPedido.estado}">PENDIENTE</span>
-                        <span class="meta-line" style="margin:0; font-size:12px;"
+                        <span class="panel-side__status" style="background-color: #F15A24; color: white; padding: 2px 8px; border-radius: 4px;"
+                              th:text="${selectedPedido.estado != null ? selectedPedido.estado : 'PENDIENTE'}">PENDIENTE</span>
+                        <span class="meta-line" style="margin:0; font-size:12px; color: #666;"
                               th:text="${selectedPedido.fechaRegistro != null ? #temporals.format(selectedPedido.fechaRegistro, 'HH:mm') : ''}">—</span>
                     </div>
 
-                    <!-- Add product form (only for PENDIENTE) -->
-                    <div th:if="${selectedPedido.estado == 'PENDIENTE'}">
+                    <!-- Sección: Añadir productos (Abierta para agregar cosas) -->
+                    <div style="margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 16px;">
+                        <h4 style="margin-top: 0; color: black;">Añadir al Pedido</h4>
                         <form th:action="@{/pedido/agregar}" method="post" class="form-stack">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <input type="hidden" name="idPedido" th:value="${selectedPedido.idPedido}">
+                            
                             <div class="field">
-                                <label for="indiceProducto">Producto</label>
-                                <select id="indiceProducto" name="indiceProducto" required>
-                                    <option th:each="p, iter : ${productos}" th:value="${iter.index}"
-                                            th:text="${p.nombre}">—</option>
+                                <label for="idProducto" style="color: black; font-weight: bold; display: block; margin-bottom: 4px;">Producto</label>
+                                <select id="idProducto" name="idProducto" required style="width: 100%; padding: 8px; border: 1px solid #ccc; color: black; background-color: white;">
+                                    <option value="" disabled selected>Seleccione un producto...</option>
+                                    <option th:each="prod : ${productos}" th:value="${prod.id}" th:text="|${prod.nombre} - $${prod.precio}|">Producto</option>
                                 </select>
                             </div>
-                            <div class="field">
-                                <label for="cantidad">Cantidad</label>
-                                <input id="cantidad" type="number" name="cantidad" min="1" value="1" required>
+                            
+                            <div class="field" style="margin-top: 12px;">
+                                <label for="cantidad" style="color: black; font-weight: bold; display: block; margin-bottom: 4px;">Cantidad</label>
+                                <input id="cantidad" name="cantidad" type="number" value="1" min="1" required style="width: 100%; padding: 8px; border: 1px solid #ccc; color: black; background-color: white;">
                             </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn--secondary btn--block">Agregar</button>
-                            </div>
+                            
+                            <button type="submit" class="btn btn--dark btn--block" style="margin-top: 16px; background-color: #3D3D3D; color: white; padding: 10px; width: 100%; border: none; cursor: pointer; font-weight: bold;">+ Agregar Ítem</button>
                         </form>
-                        <hr class="panel-side__divider">
                     </div>
 
-                    <!-- Current items -->
-                    <div th:if="${selectedPedido.items != null and not #lists.isEmpty(selectedPedido.items)}">
-                        <p class="orders-section__title" style="margin:0 0 8px; display:block;">Productos</p>
-                        <div class="table-wrap" style="margin:0;">
-                            <table class="data-table" style="font-size:12px;">
-                                <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th class="num">Cant.</th>
-                                    <th class="num">Subtotal</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="linea : ${selectedPedido.items}">
-                                    <td th:text="${linea.producto.nombre}">—</td>
-                                    <td class="num" th:text="${linea.cantidad}">0</td>
-                                    <td class="num">$<span th:text="${#numbers.formatDecimal(linea.subtotal, 1, 0)}">0</span></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    
+
+                    <!-- Tabla de Ítems actuales del pedido -->
+                    <h4 style="margin-top: 0;">Detalle de Cuenta</h4>
+                    <table class="data-table" style="width: 100%; margin-bottom: 16px;">
+                        <thead>
+                        <tr>
+                            <th>Cant</th>
+                            <th>Detalle</th>
+                            <th class="num">Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${selectedPedido?.items}">
+                            <td th:text="${item.cantidad}">1</td>
+                            <td th:text="${item.producto.nombre}">Producto</td>
+                            <td class="num" th:text="'$' + ${#numbers.formatDecimal(item.subtotal, 1, 0)}">$0</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(selectedPedido?.items)}">
+                            <td colspan="3" style="text-align: center; color: #999; padding: 12px;">No hay productos agregados.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-weight: bold; font-size: 16px;">
+                        <span>TOTAL:</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(selectedPedido?.total != null ? selectedPedido.total : 0, 1, 0)}">$0</span>
                     </div>
-                    <p th:if="${selectedPedido.items != null and #lists.isEmpty(selectedPedido.items)}" class="meta-line" style="margin:0 0 16px;">Sin productos aún.</p>
 
-                    <p class="total-banner" style="margin:16px 0;">
-                        <span>Total</span>
-                        <strong>$<span th:text="${#numbers.formatDecimal(selectedPedido.total, 1, 0)}">0</span></strong>
-                    </p>
-
-                    <!-- Cerrar button (only for PENDIENTE) -->
-                    <form th:action="@{/pedido/cerrar/{id}(id=${selectedPedido.idPedido})}" method="post"
-                          th:if="${selectedPedido.estado == 'PENDIENTE' and selectedPedido.items != null and not #lists.isEmpty(selectedPedido.items)}">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                        <button type="submit" class="btn btn--primary btn--block">Cerrar Pedido</button>
-                    </form>
-
-                    <a th:href="@{/pedido}" class="btn btn--ghost btn--block" style="margin-top:8px; text-align:center;">← Volver</a>
+                    <!-- Botón Cerrar Pedido (Solo si está PENDIENTE y tiene ítems) -->
+                    <div th:if="${selectedPedido != null}" style="margin-top: 24px;">
+                        <form th:action="@{/pedido/cerrar}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="idPedido" th:value="${selectedPedido?.idPedido}">
+                            <button type="submit" class="btn btn--primary btn--block" style="background-color: #F15A24; color: white;">Cerrar Pedido</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-
         </div>
-
     </main>
 </div>
 </body>
