@@ -35,6 +35,10 @@
                     <input id="cantidad" name="cantidad" type="number" step="any" min="0" value="0" required>
                 </div>
                 <div class="field">
+                    <label for="costo">Costo</label>
+                    <input id="costo" name="costo" type="number" step="0.01" min="0" value="0" required placeholder="Ej: 1500">
+                </div>
+                <div class="field">
                     <label for="unidad">Unidad</label>
                     <select id="unidad" name="unidad" required>
                         <option th:each="u : ${T(com.codigo.gourmet.model.UnidadMedida).values()}"

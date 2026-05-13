@@ -32,6 +32,7 @@
                         <th>Id</th>
                         <th>Nombre</th>
                         <th class="num">Cantidad disponible</th>
+                        <th class="num">Costo</th>
                         <th>Unidad</th>
                     </tr>
                     </thead>
@@ -40,6 +41,7 @@
                         <td th:text="${ing.id}">0</td>
                         <td th:text="${ing.nombre}">—</td>
                         <td class="num" th:text="${#numbers.formatDecimal(ing.cantidadDisponible, 1, 2)}">0</td>
+                        <td class="num">$<span th:text="${#numbers.formatDecimal(ing.costo, 1, 2)}">0</span></td>
                         <td th:text="${ing.unidad}">—</td>
                     </tr>
                     </tbody>

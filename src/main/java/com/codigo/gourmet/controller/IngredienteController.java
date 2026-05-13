@@ -33,11 +33,12 @@ public class IngredienteController {
     public String registrar(
             @RequestParam("nombre") String nombre,
             @RequestParam("cantidad") double cantidad,
+            @RequestParam("costo") double costo,
             @RequestParam("unidad") UnidadMedida unidad) {
-        if (nombre == null || nombre.isBlank() || cantidad < 0) {
+        if (nombre == null || nombre.isBlank() || cantidad < 0 || costo < 0) {
             return "redirect:/ingredientes/nuevo?error=1";
         }
-        Ingrediente ing = new Ingrediente(nombre.trim(), cantidad, unidad);
+        Ingrediente ing = new Ingrediente(nombre.trim(), cantidad, costo, unidad);
         ingredienteRepository.save(ing);
         return "redirect:/ingredientes";
     }

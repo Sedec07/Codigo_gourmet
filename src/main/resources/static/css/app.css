@@ -52,6 +52,19 @@ body {
   line-height: 1.5;
 }
 
+body:has(.main-content--sidebar) {
+  overflow: hidden;
+}
+
+body:has(.main-content--sidebar) .app-layout {
+  height: 100vh;
+  min-height: 0;
+}
+
+body:has(.main-content--sidebar) .main-content {
+  min-height: 0;
+}
+
 /* ============================================
    APP LAYOUT
    ============================================ */
@@ -79,12 +92,20 @@ body {
 @media (min-width: 900px) {
   .main-content--sidebar {
     grid-template-columns: 1fr 380px;
+    overflow: hidden;
+  }
+
+  .main-content--sidebar > div:first-child {
+    overflow-y: auto;
+  }
+
+  .main-content--sidebar > div:last-child {
+    overflow-y: auto;
   }
 
   .main-content--sidebar .panel-side {
-    position: sticky;
-    top: calc(var(--topbar-height) + 48px + 16px);
-    align-self: start;
+    position: static;
+    align-self: auto;
   }
 }
 

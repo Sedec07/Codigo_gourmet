@@ -23,14 +23,21 @@ public class Ingrediente {
 
     private double cantidadDisponible;
 
+    private double costo;
+
     @Enumerated(EnumType.STRING)
     private UnidadMedida unidad;
 
     public Ingrediente() {}
 
     public Ingrediente(String nombre, double cantidadDisponible, UnidadMedida unidad) {
+        this(nombre, cantidadDisponible, 0.0, unidad);
+    }
+
+    public Ingrediente(String nombre, double cantidadDisponible, double costo, UnidadMedida unidad) {
         this.nombre = nombre;
         this.cantidadDisponible = cantidadDisponible;
+        this.costo = costo;
         this.unidad = unidad;
     }
 
@@ -40,6 +47,8 @@ public class Ingrediente {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public double getCantidadDisponible() { return cantidadDisponible; }
     public void setCantidadDisponible(double cantidadDisponible) { this.cantidadDisponible = cantidadDisponible; }
+    public double getCosto() { return costo; }
+    public void setCosto(double costo) { this.costo = costo; }
     public UnidadMedida getUnidad() { return unidad; }
     public void setUnidad(UnidadMedida unidad) { this.unidad = unidad; }
 
