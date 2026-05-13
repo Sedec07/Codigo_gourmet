@@ -44,4 +44,8 @@ public class LineaReceta {
     public void setIngrediente(Ingrediente ingrediente) { this.ingrediente = ingrediente; }
     public double getCantidadPorUnidadProducto() { return cantidadPorUnidadProducto; }
     public void setCantidadPorUnidadProducto(double cantidadPorUnidadProducto) { this.cantidadPorUnidadProducto = cantidadPorUnidadProducto; }
+
+    public double getCosto() {
+        return ingrediente != null ? ingrediente.getCosto() * cantidadPorUnidadProducto : 0;
+    }
 }
