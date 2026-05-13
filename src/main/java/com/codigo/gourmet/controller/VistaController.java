@@ -1,19 +1,22 @@
 package com.codigo.gourmet.controller;
 
-import com.codigo.gourmet.service.TiendaMemoria;
+import com.codigo.gourmet.repository.PedidoRepository;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Controller
 public class VistaController {
 
-    private final TiendaMemoria tienda;
+    private final PedidoRepository pedidoRepository;
 
-    public VistaController(TiendaMemoria tienda) {
-        this.tienda = tienda;
+    public VistaController(PedidoRepository pedidoRepository) {
+        this.pedidoRepository = pedidoRepository;
     }
 
     @GetMapping("/")
@@ -38,8 +41,13 @@ public class VistaController {
 
     @GetMapping("/ventas/historial")
     public String historialVentas(Model model) {
-        model.addAttribute("pedidos", tienda.listarPedidosMasRecientesPrimero());
-        model.addAttribute("totalVendidoHoy", tienda.totalVendidoHoy());
+        model.addAttribute("pedidos", pedidoRepository.findAllByOrderByFechaRegistroDesc());
+
+        LocalDate hoy = LocalDate.now();
+        double totalVendidoHoy = pedidoRepository.findByFechaRegistroBetween(
+                hoy.atStartOfDay(), hoy.atTime(LocalTime.MAX))
+                .stream().mapToDouble(p -> p.getTotal()).sum();
+        model.addAttribute("totalVendidoHoy", totalVendidoHoy);
         return "ventas/historial";
     }
 }

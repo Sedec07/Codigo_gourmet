@@ -1,7 +1,8 @@
 package com.codigo.gourmet.controller;
 
+import com.codigo.gourmet.model.Ingrediente;
 import com.codigo.gourmet.model.UnidadMedida;
-import com.codigo.gourmet.service.TiendaMemoria;
+import com.codigo.gourmet.repository.IngredienteRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,15 +12,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class IngredienteController {
 
-    private final TiendaMemoria tienda;
+    private final IngredienteRepository ingredienteRepository;
 
-    public IngredienteController(TiendaMemoria tienda) {
-        this.tienda = tienda;
+    public IngredienteController(IngredienteRepository ingredienteRepository) {
+        this.ingredienteRepository = ingredienteRepository;
     }
 
     @GetMapping("/ingredientes")
     public String lista(Model model) {
-        model.addAttribute("ingredientes", tienda.getIngredientes());
+        model.addAttribute("ingredientes", ingredienteRepository.findAll());
         return "ingredientes/lista";
     }
 
@@ -36,7 +37,8 @@ public class IngredienteController {
         if (nombre == null || nombre.isBlank() || cantidad < 0) {
             return "redirect:/ingredientes/nuevo?error=1";
         }
-        tienda.registrarIngrediente(nombre, cantidad, unidad);
+        Ingrediente ing = new Ingrediente(nombre.trim(), cantidad, unidad);
+        ingredienteRepository.save(ing);
         return "redirect:/ingredientes";
     }
 }
