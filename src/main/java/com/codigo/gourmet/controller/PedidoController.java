@@ -50,11 +50,20 @@ public class PedidoController {
         model.addAttribute("pedidosCerrados", pedidoRepository.findByEstadoOrderByFechaRegistroDesc("CERRADO"));
         model.addAttribute("productos", productoRepository.findAll());
 
-        Pedido selected = null;
+        Pedido selected;
+        boolean orderSelected = false;
         if (selectedId != null) {
             selected = pedidoRepository.findById(selectedId).orElse(null);
+            if (selected != null) {
+                orderSelected = true;
+            } else {
+                selected = new Pedido();
+            }
+        } else {
+            selected = new Pedido();
         }
         model.addAttribute("selectedPedido", selected);
+        model.addAttribute("orderSelected", orderSelected);
         return "pedido/formulario";
     }
 
@@ -63,12 +72,9 @@ public class PedidoController {
         if (nombreCliente == null || nombreCliente.isBlank()) {
             return "redirect:/pedido?error=nombre";
         }
-        Pedido pedido = new Pedido();
-        pedido.setNombreCliente(nombreCliente.trim());
-        pedido.setEstado("PENDIENTE");
-        pedido.setFechaRegistro(LocalDateTime.now());
-        pedidoRepository.save(pedido);
-        return "redirect:/pedido";
+        Pedido pedido = new Pedido(nombreCliente.trim());
+        Pedido pedidoGuardado = pedidoRepository.save(pedido);
+        return "redirect:/pedido?selected=" + pedidoGuardado.getIdPedido();
     }
 
     @PostMapping("/agregar")
@@ -99,7 +105,7 @@ public class PedidoController {
         }
         pedido.agregarItem(new ItemPedido(producto, cantidad));
         pedidoRepository.save(pedido);
-        return "redirect:/pedido";
+        return "redirect:/pedido?selected=" + idPedido;
     }
 
     @PostMapping("/cerrar/{id}")
@@ -142,6 +148,6 @@ public class PedidoController {
         }
         pedido.setEstado("EN_CURSO");
         pedidoRepository.save(pedido);
-        return "redirect:/pedido";
+        return "redirect:/pedido?selected=" + idPedido;
     }
 }
