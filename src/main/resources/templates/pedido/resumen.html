@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resumen pedido — Código Gourmet</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="shell">
+    <header class="page-header">
+        <h1>Pedido guardado</h1>
+        <p class="tagline">Confirmación de venta</p>
+    </header>
+
+    <div class="card">
+        <p class="meta-line">Número de pedido: <strong th:text="${pedido.idPedido}">0</strong></p>
+
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="num">Cantidad</th>
+                    <th class="num">Subtotal</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="linea : ${pedido.items}">
+                    <td th:text="${linea.producto.nombre}">—</td>
+                    <td class="num" th:text="${linea.cantidad}">0</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(linea.subtotal, 1, 0)}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="total-banner"><strong>Total:</strong> $<span th:text="${#numbers.formatDecimal(pedido.total, 1, 0)}">0</span></p>
+
+        <div class="btn-row">
+            <a class="btn btn--secondary" th:href="@{/pedido}">Nuevo pedido</a>
+            <a class="btn btn--ghost" th:href="@{/dashboard}">Dashboard</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

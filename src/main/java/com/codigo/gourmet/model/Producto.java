@@ -15,4 +15,8 @@ public class Producto {
     public String getNombre() { return nombre; }
     public double getPrecio() { return precio; }
     public int getStock() { return stock; }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
 }

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard — Código Gourmet</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="shell">
+    <header class="page-header">
+        <h1>Código Gourmet</h1>
+        <p class="tagline">Panel principal</p>
+    </header>
+
+    <div class="card">
+        <div class="user-strip">
+            <span>Hola, <span class="name" sec:authentication="name">usuario</span>.</span>
+            <span sec:authorize="hasRole('CAJERO')" class="badge">Cajero</span>
+            <span sec:authorize="hasRole('ADMINISTRADOR')" class="badge">Administrador</span>
+        </div>
+
+        <h2>Accesos rápidos</h2>
+        <ul class="nav-tiles">
+            <li><a th:href="@{/pedido}">Nuevo pedido</a></li>
+            <li><a th:href="@{/ventas/historial}">Historial de ventas</a></li>
+            <li sec:authorize="hasRole('ADMINISTRADOR')" class="muted">Inventario <span th:text="'(próximamente)'"></span></li>
+        </ul>
+
+        <div class="footer-actions">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn--danger">Cerrar sesión</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

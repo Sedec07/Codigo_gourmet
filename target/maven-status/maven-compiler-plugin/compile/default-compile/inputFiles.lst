@@ -1,2 +1,8 @@
-/workspaces/Codigo_gourmet/src/main/java/com/codigo/gourmet/CodigoGourmetApplication.java
-/workspaces/Codigo_gourmet/src/main/java/com/codigo/gourmet/controller/VistaController.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\CodigoGourmetApplication.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\config\SecurityConfig.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\controller\PedidoController.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\controller\VistaController.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\model\ItemPedido.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\model\Pedido.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\model\Producto.java
+c:\Users\sebas\Codigo_gourmet\src\main\java\com\codigo\gourmet\service\TiendaMemoria.java

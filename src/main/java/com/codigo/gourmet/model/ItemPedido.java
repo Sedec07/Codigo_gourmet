@@ -13,6 +13,14 @@ public class ItemPedido {
         return producto.getPrecio() * cantidad;
     }
 
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
     @Override
     public String toString() {
         return producto.getNombre() + " x" + cantidad + " | Subtotal: $" + getSubtotal();

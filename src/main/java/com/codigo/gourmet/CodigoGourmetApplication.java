@@ -2,7 +2,10 @@ package com.codigo.gourmet;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.codigo.gourmet.model.*;
+
+import com.codigo.gourmet.model.ItemPedido;
+import com.codigo.gourmet.model.Pedido;
+import com.codigo.gourmet.model.Producto;
 
 @SpringBootApplication
 public class CodigoGourmetApplication {
