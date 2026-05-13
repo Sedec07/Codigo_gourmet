@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class VistaController {
 
+    private final TiendaMemoria tienda;
+
+    public VistaController(TiendaMemoria tienda) {
+        this.tienda = tienda;
+    }
+
     @GetMapping("/")
     public String root() {
         return "redirect:/dashboard";
@@ -31,7 +37,7 @@ public class VistaController {
     }
 
     @GetMapping("/ventas/historial")
-    public String historialVentas(Model model, TiendaMemoria tienda) {
+    public String historialVentas(Model model) {
         model.addAttribute("pedidos", tienda.listarPedidosMasRecientesPrimero());
         model.addAttribute("totalVendidoHoy", tienda.totalVendidoHoy());
         return "ventas/historial";

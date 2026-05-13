@@ -11,19 +11,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class RecetaController {
 
+    private final TiendaMemoria tienda;
+
+    public RecetaController(TiendaMemoria tienda) {
+        this.tienda = tienda;
+    }
+
     @GetMapping("/recetas")
     public String asignar(
             @RequestParam(value = "indiceProducto", required = false) Integer indiceProducto,
-            Model model,
-            TiendaMemoria tienda) {
+            Model model) {
         int indice = indiceProducto == null ? 0 : indiceProducto;
         if (indice < 0 || indice >= tienda.tamanoCatalogo()) {
             indice = 0;
         }
         Producto seleccionado = tienda.productoPorIndice(indice);
-        System.out.println("[RecetaController] GET recetas tienda=" + System.identityHashCode(tienda)
-                + " indice=" + indice + " producto=" + seleccionado.getNombre()
-                + " hashProducto=" + System.identityHashCode(seleccionado));
         model.addAttribute("productos", tienda.getCatalogo());
         model.addAttribute("ingredientes", tienda.getIngredientes());
         model.addAttribute("indiceSeleccionado", indice);
@@ -36,8 +38,7 @@ public class RecetaController {
     public String agregarLinea(
             @RequestParam("indiceProducto") int indiceProducto,
             @RequestParam("idIngrediente") int idIngrediente,
-            @RequestParam("cantidadPorUnidad") double cantidadPorUnidad,
-            TiendaMemoria tienda) {
+            @RequestParam("cantidadPorUnidad") double cantidadPorUnidad) {
         if (indiceProducto < 0 || indiceProducto >= tienda.tamanoCatalogo()
                 || tienda.buscarIngredientePorId(idIngrediente) == null
                 || cantidadPorUnidad <= 0) {
@@ -45,16 +46,13 @@ public class RecetaController {
             return "redirect:/recetas?indiceProducto=" + safe + "&error=1";
         }
         tienda.agregarLineaReceta(indiceProducto, idIngrediente, cantidadPorUnidad);
-        System.out.println("[RecetaController] POST agregar ok indiceProducto=" + indiceProducto
-                + " idIngrediente=" + idIngrediente + " cantidadPorUnidad=" + cantidadPorUnidad);
         return "redirect:/recetas?indiceProducto=" + indiceProducto;
     }
 
     @PostMapping("/recetas/quitar")
     public String quitarLinea(
             @RequestParam("indiceProducto") int indiceProducto,
-            @RequestParam("idIngrediente") int idIngrediente,
-            TiendaMemoria tienda) {
+            @RequestParam("idIngrediente") int idIngrediente) {
         if (indiceProducto >= 0 && indiceProducto < tienda.tamanoCatalogo()) {
             tienda.quitarLineaRecetaIngrediente(indiceProducto, idIngrediente);
         }

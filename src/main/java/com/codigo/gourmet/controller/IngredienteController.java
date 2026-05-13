@@ -11,9 +11,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class IngredienteController {
 
+    private final TiendaMemoria tienda;
+
+    public IngredienteController(TiendaMemoria tienda) {
+        this.tienda = tienda;
+    }
+
     @GetMapping("/ingredientes")
-    public String lista(Model model, TiendaMemoria tienda) {
-        System.out.println("[IngredienteController] GET lista tienda=" + System.identityHashCode(tienda));
+    public String lista(Model model) {
         model.addAttribute("ingredientes", tienda.getIngredientes());
         return "ingredientes/lista";
     }
@@ -27,13 +32,10 @@ public class IngredienteController {
     public String registrar(
             @RequestParam("nombre") String nombre,
             @RequestParam("cantidad") double cantidad,
-            @RequestParam("unidad") UnidadMedida unidad,
-            TiendaMemoria tienda) {
+            @RequestParam("unidad") UnidadMedida unidad) {
         if (nombre == null || nombre.isBlank() || cantidad < 0) {
             return "redirect:/ingredientes/nuevo?error=1";
         }
-        System.out.println("[IngredienteController] POST nuevo tienda=" + System.identityHashCode(tienda)
-                + " nombre=" + nombre + " cantidad=" + cantidad + " unidad=" + unidad);
         tienda.registrarIngrediente(nombre, cantidad, unidad);
         return "redirect:/ingredientes";
     }
